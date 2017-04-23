@@ -41,6 +41,7 @@ request({url:'https://graph.facebook.com/v2.9/search?q='+key+'&type=page&access_
 }
 
 function getData() { //when you type a word in input field and press enter
+  document.getElementById('cards-container').innerHTML = '';
   if(event.keyCode == 13) {
      makeCall(event.target.value)
   } else {
@@ -80,34 +81,30 @@ function createFooter(data) {
   favCheck = checkIfFav(data);
   var src ='';
   var title='';
-  if( favCheck.length > 0){ // if entry already present in localStorage
-    src = 'images/favRemove.png';
-    title = 'Remove from favourites';
+    src = favCheck.length > 0?'images/favRemove.png':'images/fav.png';
+    title = favCheck.length > 0?'Remove from favourites':'Add to favourites';
     img.onclick = function(event) {
-      event.target.setAttribute('src', 'images/fav.png');
-      event.target.setAttribute('title', 'Add to favourites');
-      var favourites = [];
-      favourites = JSON.parse(localStorage.getItem('favourites')).filter(function(obj){
-        return obj.id != data.id;
-      });
-      localStorage.setItem('favourites',JSON.stringify(favourites));
-      getfavoritePages();
+      var checkFlag = checkIfFav(data);
+      if(checkFlag.length > 0){
+        event.target.setAttribute('src', 'images/fav.png');
+        event.target.setAttribute('title', 'Add to favourites');
+        var favourites = [];
+        favourites = JSON.parse(localStorage.getItem('favourites')).filter(function(obj){
+          return obj.id != data.id;
+        });
+        localStorage.setItem('favourites',JSON.stringify(favourites));
+        //getfavoritePages();
+        
+      }else {
+        event.target.setAttribute('src', 'images/favRemove.png');
+        event.target.setAttribute('title', 'Remove from favourites');
+        var favourites = [];
+        favourites = localStorage.getItem('favourites') != ''?JSON.parse(localStorage.getItem('favourites')):[];
+        favourites.push(data);
+        localStorage.setItem('favourites',JSON.stringify(favourites));
+      }
 
     }
-  }else {
-    src = 'images/fav.png';
-    title = 'Add to favourites';
-    img.onclick = function(event) {
-      event.target.setAttribute('src', 'images/favRemove.png');
-      event.target.setAttribute('title', 'Remove from favourites');
-      debugger
-
-      var favourites = [];
-      favourites = localStorage.getItem('favourites') != ''?JSON.parse(localStorage.getItem('favourites')):[];
-      favourites.push(data);
-      localStorage.setItem('favourites',JSON.stringify(favourites));
-    }
-  }
 
 
   img.setAttribute('src',src);
